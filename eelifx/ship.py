@@ -1,0 +1,43 @@
+class Ship():
+    def __init__(self):
+        self._alert_level = 'normal'
+        self._shields_active = False
+        self._shields_transitioned = False
+        self._energy = 1.0
+        self._hull = 1.0
+
+    def update(self, lua_response):
+        self._alert_level = lua_response['alertLevel']
+        self._shields_transitioned = (self._shields_active != lua_response['shieldsActive'])
+        self._shields_active = lua_response['shieldsActive']
+        self._energy = lua_response['energyLevel'] / lua_response['energyLevelMax']
+        self._hull = lua_response['hull'] / lua_response['hullMax']
+
+    def alert_level(self):
+        return self._alert_level
+
+    def shields_active(self):
+        return self._shields_active
+
+    def shields_transitioned(self):
+        return self._shields_transitioned
+
+    def energy(self):
+        return self._energy
+
+    def hull(self):
+        return self._hull
+
+    def to_dict(self):
+        fields = ['alert_level', 'shields_active', 'shields_transitioned', 'energy', 'hull']
+        data = {}
+        for f in fields:
+            data[f] = getattr(self, f)()
+        return data
+
+    def __repr__(self):
+        res = ''
+        for k, v in self.to_dict().items():
+            res += " {key}={value}".format(key=k, value=v)
+
+        return '<Ship{res}>'.format(res=res)
