@@ -13,18 +13,23 @@ class Ship():
         self._energy = lua_response['energyLevel'] / lua_response['energyLevelMax']
         self._hull = lua_response['hull'] / lua_response['hullMax']
 
+    @property
     def alert_level(self):
         return self._alert_level
 
+    @property
     def shields_active(self):
         return self._shields_active
 
+    @property
     def shields_transitioned(self):
         return self._shields_transitioned
 
+    @property
     def energy(self):
         return self._energy
 
+    @property
     def hull(self):
         return self._hull
 

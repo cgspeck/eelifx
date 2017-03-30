@@ -24,9 +24,9 @@ class LifxCommander():
         self._command_stack = {}
 
     @run_once
-    def set_hue(self, val):
-        print('setting hue')
-        self._command_stack['set_hue'] = val
+    def set_colour(self, val):
+        print('setting colour')
+        self._command_stack['set_colour'] = val
 
     @run_once
     def set_intensity(self, val):
@@ -39,8 +39,25 @@ class LifxCommander():
         print('setting effect')
         self._command_stack['set_effect'] = val
 
+    @run_once
+    def set_luminance(self, val):
+        print('setting luminance')
+        self._command_stack['set_luminance'] = val
+
+    @run_once
+    def set_power(self, val):
+        print('setting power')
+        self._command_stack['set_power'] = val
+
     def apply(self, blubs):
-        for bulb in bulbs:
-            if re.match(bulb.group):
-                if 'set_hue' in self._command_stack:
-                    pass
+        for [bulb for bulb in bulbs if re.match(bulb)]:
+            if 'set_power' in self._command_stack:
+                # change bulb's power if it differs
+                if not self._command_stack['set_power']:
+                    next
+
+            if 'set_colour' in self._command_stack:
+                pass
+
+            if 'set_luminance' in self._command_stack:
+                pass
