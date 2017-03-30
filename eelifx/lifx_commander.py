@@ -1,4 +1,5 @@
 import re
+import logging
 from functools import wraps
 
 
@@ -25,34 +26,33 @@ class LifxCommander():
 
     @run_once
     def set_colour(self, val):
-        print('setting colour')
+        logging.info('setting colour')
         self._command_stack['set_colour'] = val
 
     @run_once
     def set_intensity(self, val):
-        print('setting intensity')
+        logging.info('setting intensity')
         self._command_stack['set_intensity'] = val
 
     @run_once
     def set_effect(self, val):
         assert val in self._supported_effects
-        print('setting effect')
+        logging.info('setting effect')
         self._command_stack['set_effect'] = val
 
     @run_once
     def set_luminance(self, val):
-        print('setting luminance')
+        logging.info('setting luminance')
         self._command_stack['set_luminance'] = val
 
     def set_power(self, val):
         '''
         Can be called as many times as required but latches off if called with false
         '''
-        print('setting power', val)
-
         if 'set_power' in self._command_stack and self._command_stack['set_power'] == False:
             return
 
+        logging.info('setting power')
         self._command_stack['set_power'] = val
 
     def apply(self, blubs):
