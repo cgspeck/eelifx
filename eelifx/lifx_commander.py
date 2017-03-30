@@ -13,11 +13,11 @@ def run_once(f):
 
 
 class LifxCommander():
-    def __init__(self, ee_poll_interval, max_luminance, target_group='.*'):
-        self._ee_poll_interval = ee_poll_interval
+    def __init__(self, poll_interval, max_luminance, target_group='.*'):
+        self._poll_interval = poll_interval
         self._max_luminance = max_luminance
         self._command_stack = {}
-        self._supported_effects = ['none', 'breathe', 'flicker']
+        self._supported_effects = ['none', 'strobe', 'flicker']
         self._target_group = re.compile(target_group, flags=re.I)
 
     def reset(self):
@@ -44,13 +44,21 @@ class LifxCommander():
         print('setting luminance')
         self._command_stack['set_luminance'] = val
 
-    @run_once
     def set_power(self, val):
-        print('setting power')
+        '''
+        Can be called as many times as required but latches off if called with false
+        '''
+        print('setting power', val)
+
+        if 'set_power' in self._command_stack and self._command_stack['set_power'] == False:
+            return
+
         self._command_stack['set_power'] = val
 
     def apply(self, blubs):
-        for [bulb for bulb in bulbs if re.match(bulb)]:
+        target_bulbs = [bulb for bulb in blubs if self._target_group.match(bulb)]
+
+        for bulb in target_bulbs:
             if 'set_power' in self._command_stack:
                 # change bulb's power if it differs
                 if not self._command_stack['set_power']:

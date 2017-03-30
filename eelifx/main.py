@@ -7,15 +7,19 @@ from functools import partial
 
 import aiolifx
 import aiohttp
+from aiohttp.client_exceptions import ClientConnectorError
 
 from bulbs import Bulbs
 from luacode import luacode
 from ship import Ship
 from lifx_commander import LifxCommander
+from config import DEFAULT_CONFIG
+
+config = DEFAULT_CONFIG
 
 UDP_BROADCAST_PORT = 56700
-EE_POLL_INTERVAL = 5
-MAX_LUMINANCE = 100
+poll_interval = config['poll_interval']
+MAX_LUMINANCE = config['groups'][0]['max_luminance']
 
 async def fetch(session, url):
     with async_timeout.timeout(10):
@@ -32,32 +36,40 @@ async def get_ship_status(session, url):
 async def print_status(loop, bulbs, lifx_commander):
     print(MyBulbs.bulbs)
     session = aiohttp.ClientSession()
-    html = await get_ship_status(session, 'http://localhost:8080/exec.lua')
+
+    html = None
     try:
-        ship_data = json.loads(html)
-    except json.JSONDecodeError:
-        print('Unable to parse EmptyEpsilon response')
-    else:
-        if 'ERROR' in ship_data.keys():
-            print('Error returned by EmptyEpsilon:%s' % ship_data['ERROR'])
-            print('Executed LUA:\n---%s---' % luacode())
+        html = await get_ship_status(session, 'http://localhost:8080/exec.lua')
+    except ClientConnectorError as e:
+        print("Unable to connect to EmptyEpsilon, is its http serve running?")
+        print(e)
+
+    if html:
+        try:
+            ship_data = json.loads(html)
+        except json.JSONDecodeError:
+            print('Unable to parse EmptyEpsilon response')
         else:
-            try:
-                ship.update(ship_data)
-            except Exception as e:
-                raise
+            if 'ERROR' in ship_data.keys():
+                print('Error returned by EmptyEpsilon:%s' % ship_data['ERROR'])
+                print('Executed LUA:\n---%s---' % luacode())
             else:
-                print(ship)
-                lifx_commander.set_hue(50)
+                try:
+                    ship.update(ship_data)
+                except Exception as e:
+                    raise
+                else:
+                    print(ship)
+                    # lifx_commander.set_hue(50)
 
     session.close()
-    await asyncio.sleep(EE_POLL_INTERVAL)
+    await asyncio.sleep(poll_interval)
     asyncio.ensure_future(print_status(loop, bulbs, lifx_commander))
 
 
 MyBulbs = Bulbs()
 ship = Ship()
-lifx_commander = LifxCommander(EE_POLL_INTERVAL, max_luminance=MAX_LUMINANCE)
+lifx_commander = LifxCommander(poll_interval, max_luminance=MAX_LUMINANCE)
 loop = asyncio.get_event_loop()
 coro = loop.create_datagram_endpoint(
             partial(aiolifx.LifxDiscovery, loop, MyBulbs),

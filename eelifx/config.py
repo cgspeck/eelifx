@@ -1,6 +1,9 @@
 DEFAULT_CONFIG = {
-    'groups': {
+    'poll_interval': 20,
+    'groups': [
+    {
         'match': '.*',
+        'max_luminance': 1.0,
         'rules': [
         {
             'statement': 'ship.energy > 0.6',
@@ -47,6 +50,20 @@ DEFAULT_CONFIG = {
                 "lifx_commander.set_colour('red')",
             ]
         },
+        {
+            'statement': 'ship.health < 0.2 && ship.health > 0.1',
+            'effect': [
+                'lifx_commander.set_power(True)',
+                'lifx_commander.set_effect("flicker")',
+            ]
+        },
+        {
+            'statement': 'ship.health < 0.1',
+            'effect': [
+                'lifx_commander.set_power(False)',
+            ]
+        },
         ]
-    }
+    },
+    ],
 }
