@@ -2,6 +2,8 @@ import re
 import logging
 from functools import wraps
 
+from colour import Color
+
 
 def run_once(f):
     @wraps(f)
@@ -49,23 +51,43 @@ class LifxCommander():
         '''
         Can be called as many times as required but latches off if called with false
         '''
-        if 'set_power' in self._command_stack and self._command_stack['set_power'] == False:
+        if 'set_power' in self._command_stack and not self._command_stack['set_power']:
             return
 
         logging.info('setting power')
         self._command_stack['set_power'] = val
 
     def apply(self, blubs):
+        command_stack = self._command_stack
         target_bulbs = [bulb for bulb in blubs if self._target_group.match(bulb)]
+        m_colour = None
 
         for bulb in target_bulbs:
-            if 'set_power' in self._command_stack:
+            if 'set_power' in command_stack:
                 # change bulb's power if it differs
-                if not self._command_stack['set_power']:
+                desired_state = command_stack['set_power']
+                observed_state = True if bulb.get_power() == 65535 else False
+
+                if observed_state != desired_state:
+                    bulb.set_power(desired_state)
+
+                if not desired_state:
                     next
 
-            if 'set_colour' in self._command_stack:
-                pass
+            if 'set_colour' in command_stack:
+                m_colour = Color(command_stack['colour'])
 
-            if 'set_luminance' in self._command_stack:
-                pass
+                if m_colour.luminance > self._max_luminance:
+                    m_colour.luminance = self._max_luminance
+
+            if 'set_luminance' in command_stack:
+                m_colour.luminance = m_colour.luminance * command_stack['set_luminance']
+
+            #  color is [Hue, Saturation, Brightness, Kelvin], duration in ms
+            #  def set_color(self, value, callb=None, duration=0, rapid=False):
+            bulb.set_color([
+                int(round((float(m_colour.hue)*65535.0)/1.0)),
+                int(round((float(m_colour.saturation)*65535.0)/1.0)),
+                int(round((float(m_colour.luminance)*65535.0)/1.0)),
+                3500
+            ])

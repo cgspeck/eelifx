@@ -2,6 +2,7 @@
 import sys
 import json
 import asyncio
+import logging
 import async_timeout
 from functools import partial
 
@@ -13,8 +14,9 @@ from bulbs import Bulbs
 from luacode import luacode
 from ship import Ship
 from lifx_commander import LifxCommander
-from config import DEFAULT_CONFIG
+from config import DEFAULT_CONFIG, setup_logging
 
+setup_logging()
 config = DEFAULT_CONFIG
 
 UDP_BROADCAST_PORT = 56700
@@ -34,33 +36,36 @@ async def get_ship_status(session, url):
 
 
 async def print_status(loop, bulbs, lifx_commander):
-    print(MyBulbs.bulbs)
+    logging.debug(MyBulbs.bulbs)
     session = aiohttp.ClientSession()
 
     html = None
     try:
         html = await get_ship_status(session, 'http://localhost:8080/exec.lua')
     except ClientConnectorError as e:
-        print("Unable to connect to EmptyEpsilon, is its http serve running?")
-        print(e)
+        logging.warn("Unable to connect to EmptyEpsilon, is its http server running?")
+        logging.warn(e)
+
+    ship_data = None
 
     if html:
         try:
             ship_data = json.loads(html)
         except json.JSONDecodeError:
-            print('Unable to parse EmptyEpsilon response')
+            logging.warning('Unable to parse EmptyEpsilon response')
         else:
             if 'ERROR' in ship_data.keys():
-                print('Error returned by EmptyEpsilon:%s' % ship_data['ERROR'])
-                print('Executed LUA:\n---%s---' % luacode())
-            else:
-                try:
-                    ship.update(ship_data)
-                except Exception as e:
-                    raise
-                else:
-                    print(ship)
-                    # lifx_commander.set_hue(50)
+                logging.critical('Error returned by EmptyEpsilon:%s' % ship_data['ERROR'])
+                logging.critical('Executed LUA:\n---%s---' % luacode())
+                ship_data = None
+
+    if ship_data:
+        try:
+            ship.update(ship_data)
+        except Exception as e:
+            raise
+        else:
+            logging.debug(ship)
 
     session.close()
     await asyncio.sleep(poll_interval)
@@ -76,10 +81,11 @@ coro = loop.create_datagram_endpoint(
             local_addr=('0.0.0.0', UDP_BROADCAST_PORT)
         )
 
+
 try:
     server = loop.create_task(coro)
     asyncio.ensure_future(print_status(loop, MyBulbs, lifx_commander))
-    print("Use Ctrl-C to quit")
+    logging.info("Use Ctrl-C to quit")
     loop.run_forever()
 except:
     pass

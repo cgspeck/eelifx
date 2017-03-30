@@ -3,7 +3,6 @@ class Bulbs():
     """
     def __init__(self):
         self.bulbs = []
-        self.boi = None  # bulb of interest
 
     def register(self, bulb):
         bulb.get_label()
