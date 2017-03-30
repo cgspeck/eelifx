@@ -57,7 +57,8 @@ class LifxCommander():
         logging.info('setting power')
         self._command_stack['set_power'] = val
 
-    def apply(self, blubs):
+    def apply(self, bulbs):
+        print(bulbs)
         command_stack = self._command_stack
         target_bulbs = [bulb for bulb in blubs if self._target_group.match(bulb)]
         m_colour = None

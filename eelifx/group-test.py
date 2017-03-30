@@ -34,6 +34,7 @@ async def group_test(loop, bulbs, lifx_commander, group, rule):
         "Resetting lights to base state"
     )
     exec(config['groups'][group]['base_state_compiled'])
+    lifx_commander.apply(bulbs)
     lifx_commander.reset()
     await asyncio.sleep(poll_interval)
     logging.info(
@@ -43,6 +44,7 @@ async def group_test(loop, bulbs, lifx_commander, group, rule):
         config['groups'][group]['rules'][rule]['statement']
     )
     exec(config['groups'][group]['rules'][rule]['effect_compiled'])
+    lifx_commander.apply(bulbs)
     lifx_commander.reset()
     await asyncio.sleep(poll_interval)
     if rule == len(config['groups'][group]['rules']):
