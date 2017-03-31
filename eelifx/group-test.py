@@ -27,6 +27,7 @@ for group in config['groups']:
 UDP_BROADCAST_PORT = 56700
 poll_interval = config['poll_interval']
 MAX_LUMINANCE = config['groups'][0]['max_luminance']
+COLOUR_TEMP = config['groups'][0]['colour_temp']
 
 
 async def group_test(loop, bulbs, lifx_commander, group, rule):
@@ -35,7 +36,6 @@ async def group_test(loop, bulbs, lifx_commander, group, rule):
     )
     exec(config['groups'][group]['base_state_compiled'])
     lifx_commander.apply(bulbs)
-    lifx_commander.reset()
     await asyncio.sleep(poll_interval)
     logging.info(
         "[Group %s][Rule %s] Running block for condition '%s'",
@@ -51,6 +51,7 @@ async def group_test(loop, bulbs, lifx_commander, group, rule):
         rule = 0
         if group == len(config['groups']):
             group = 0
+            rule = 0
         else:
             group += 1
     else:
@@ -60,7 +61,7 @@ async def group_test(loop, bulbs, lifx_commander, group, rule):
 
 
 MyBulbs = Bulbs()
-lifx_commander = LifxCommander(poll_interval, max_luminance=MAX_LUMINANCE)
+lifx_commander = LifxCommander(poll_interval, max_luminance=MAX_LUMINANCE, colour_temp=COLOUR_TEMP)
 loop = asyncio.get_event_loop()
 coro = loop.create_datagram_endpoint(
             partial(aiolifx.LifxDiscovery, loop, MyBulbs),

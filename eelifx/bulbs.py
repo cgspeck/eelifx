@@ -1,3 +1,8 @@
+import typing
+
+from aiolifx import aiolifx
+
+
 class Bulbs():
     """ A simple class with a register and  unregister methods
     """
@@ -21,3 +26,9 @@ class Bulbs():
                 del(self.bulbs[idx])
                 break
             idx += 1
+
+    def filter_group(self, compiled_regex: typing.re) -> typing.Generator[aiolifx.Light, None, None]:
+
+        for bulb in self.bulbs:
+            if compiled_regex.match(bulb.get_group()):
+                yield bulb

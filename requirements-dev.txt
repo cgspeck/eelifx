@@ -1,0 +1,2 @@
+ipykernel
+-r requirements-test.txt

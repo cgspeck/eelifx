@@ -5,7 +5,8 @@ DEFAULT_CONFIG = {
     'groups': [
         {
             'match': '.*',
-            'max_luminance': 1.0,
+            'max_luminance': 0.29,
+            'colour_temp': 3500,
             'base_state': '''
 lifx_commander.set_power(True)
 lifx_commander.set_colour("white")
@@ -43,7 +44,7 @@ lifx_commander.set_luminance(0.1)
                 },
                 {
                     'statement': "ship.alert_level == 'YELLOW ALERT'",
-                    'effect': "lifx_commander.set_colour('orange')",
+                    'effect': "lifx_commander.set_colour('yellow')",
                 },
                 {
                     'statement': "ship.alert_level == 'RED ALERT'",
