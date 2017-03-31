@@ -28,7 +28,16 @@ coro = loop.create_datagram_endpoint(
         )
 try:
     server = loop.create_task(coro)
-    asyncio.ensure_future(wait_for_members(loop, MyBulbs, lifx_commanders, poll_interval, config))
+    asyncio.ensure_future(
+        wait_for_members(
+            loop,
+            MyBulbs,
+            lifx_commanders,
+            poll_interval,
+            config,
+            mode='group-test'
+        )
+    )
     print("Use Ctrl-C to quit")
     loop.run_forever()
 except:

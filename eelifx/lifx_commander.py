@@ -58,11 +58,15 @@ class LifxCommander():
         logging.info(
             'Group %s has %s',
             self._target_group_orig,
-            ' at least one member' if res else ' not got any members'
+            'at least one member' if res else 'not got any members'
         )
         return res
 
     def apply(self, bulbs):
+        if len(self._command_stack) == 0:
+            logging.warning('Apply called but no commands registered')
+            return
+
         logging.debug('Candidate bulbs are %s' % bulbs)
         command_stack = self._command_stack
 

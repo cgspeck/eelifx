@@ -34,10 +34,13 @@ class Ship():
         return self._hull
 
     def to_dict(self):
-        fields = ['alert_level', 'shields_active', 'shields_transitioned', 'energy', 'hull']
         data = {}
-        for f in fields:
-            data[f] = getattr(self, f)()
+        data['alert_level'] = self.alert_level
+        data['shields_active'] = self.shields_active
+        data['shields_transitioned'] = self.shields_transitioned
+        data['energy'] = self.energy
+        data['hull'] = self.hull
+
         return data
 
     def __repr__(self):

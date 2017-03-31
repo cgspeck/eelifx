@@ -2,11 +2,14 @@ import sys
 import typing
 import asyncio
 import logging
+import async_timeout
 from copy import deepcopy
 from pprint import pformat
 
 from eelifx.bulbs import Bulbs
 from eelifx.lifx_commander import LifxCommander
+from eelifx.processor import process_game_state
+from eelifx.luacode import luacode
 
 
 def compile_items(_list, item_key):
@@ -30,7 +33,8 @@ async def wait_for_members(
     bulbs: Bulbs,
     lifx_commanders: typing.Sequence[LifxCommander],
     poll_interval: int,
-    config: typing.Dict
+    config: typing.Dict,
+    mode: str
 ):
     ok = True
     if 'wait_for_members' in config and config['wait_for_members']:
@@ -43,7 +47,7 @@ async def wait_for_members(
             )
             # requeue check
             await asyncio.sleep(poll_interval)
-            asyncio.ensure_future(wait_for_members(loop, bulbs, lifx_commanders, poll_interval, config))
+            asyncio.ensure_future(wait_for_members(loop, bulbs, lifx_commanders, poll_interval, config, mode))
 
     if ok:
         logging.info('At least one globe in each group is present, or wait_for_members is set to false.')
@@ -59,7 +63,14 @@ async def wait_for_members(
             logging.info('Compiling effects statements...')
             compile_items(groups[-1]['rules'], 'effect')
 
-        asyncio.ensure_future(group_test(loop, bulbs, lifx_commanders, poll_interval, groups, 0, 0))
+        if mode == 'group-test':
+            asyncio.ensure_future(
+                group_test(loop, bulbs, lifx_commanders, poll_interval, groups, 0, 0)
+            )
+        else:
+            asyncio.ensure_future(
+                process_game_state(loop, bulbs, lifx_commanders, poll_interval, groups, config['endpoint'])
+            )
 
 
 async def group_test(
