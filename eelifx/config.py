@@ -2,64 +2,65 @@ import logging
 
 DEFAULT_CONFIG = {
     'poll_interval': 20,
+    'wait_for_members': True,
     'groups': [
         {
             'match': '.*',
             'max_luminance': 0.29,
             'colour_temp': 3500,
             'base_state': '''
-lifx_commander.set_power(True)
-lifx_commander.set_colour("white")
-lifx_commander.set_luminance(1.0)
+lifx_commanders[lc_index].set_power(True)
+lifx_commanders[lc_index].set_colour("white")
+lifx_commanders[lc_index].set_luminance(1.0)
 ''',
             'rules': [
                 {
                     'statement': 'ship.energy > 0.6',
                     'effect': '''
-lifx_commander.set_power(True)
-lifx_commander.set_luminance(1.0)
+lifx_commanders[lc_index].set_power(True)
+lifx_commanders[lc_index].set_luminance(1.0)
 ''',
                 },
                 {
                     'statement': 'ship.energy < 0.6 and ship.energy > 0.15',
                     'effect': '''
-lifx_commander.set_power(True)
-lifx_commander.set_luminance(0.6)
+lifx_commanders[lc_index].set_power(True)
+lifx_commanders[lc_index].set_luminance(0.6)
 ''',
                 },
                 {
                     'statement': 'ship.energy > 0.15 and ship.energy > 0.05',
                     'effect': '''
-lifx_commander.set_power(True)
-lifx_commander.set_luminance(0.1)
+lifx_commanders[lc_index].set_power(True)
+lifx_commanders[lc_index].set_luminance(0.1)
 ''',
                 },
                 {
                     'statement': 'ship.energy > 0.05',
-                    'effect': 'lifx_commander.set_power(False)',
+                    'effect': 'lifx_commanders[lc_index].set_power(False)',
                 },
                 {
                     'statement': "ship.alert_level == 'normal'",
-                    'effect': "lifx_commander.set_colour('white')",
+                    'effect': "lifx_commanders[lc_index].set_colour('white')",
                 },
                 {
                     'statement': "ship.alert_level == 'YELLOW ALERT'",
-                    'effect': "lifx_commander.set_colour('yellow')",
+                    'effect': "lifx_commanders[lc_index].set_colour('yellow')",
                 },
                 {
                     'statement': "ship.alert_level == 'RED ALERT'",
-                    'effect': "lifx_commander.set_colour('red')",
+                    'effect': "lifx_commanders[lc_index].set_colour('red')",
                 },
                 {
                     'statement': 'ship.health < 0.2 and ship.health > 0.1',
                     'effect': '''
-lifx_commander.set_power(True)
-lifx_commander.set_effect("flicker")
+lifx_commanders[lc_index].set_power(True)
+lifx_commanders[lc_index].set_effect("flicker")
 ''',
                 },
                 {
                     'statement': 'ship.health < 0.1',
-                    'effect': 'lifx_commander.set_power(False)',
+                    'effect': 'lifx_commanders[lc_index].set_power(False)',
                 },
             ]
         },
@@ -67,12 +68,12 @@ lifx_commander.set_effect("flicker")
 }
 
 
-def setup_logging():
+def setup_logging(level=logging.INFO):
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
     # create console handler and set level to debug
     ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(level)
     # create formatter
     formatter = logging.Formatter('%(asctime)s:%(name)s:[%(levelname)s]: %(message)s')
     # add formatter to ch

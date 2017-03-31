@@ -9,7 +9,7 @@ from eelifx.lifx_commander import LifxCommander
 
 @pytest.fixture
 def lifx_commander():
-    return LifxCommander(poll_interval=20, max_luminance=1.0)
+    return LifxCommander()
 
 
 def test_last_call_to_set_colour_takes_preference(lifx_commander):
@@ -48,3 +48,15 @@ def test_reset_clears_command_stack(lifx_commander):
 
     lifx_commander.reset()
     assert len(lifx_commander._command_stack) == 0
+
+
+def test_has_members(bulb_container, standard_bulbs):
+    lifx_commander = LifxCommander(
+        target_group='ship.*'
+    )
+    bulb_container.bulbs = []
+    assert not lifx_commander.has_members(bulb_container)
+    bulb_container.bulbs = standard_bulbs[4:2]
+    assert not lifx_commander.has_members(bulb_container)
+    bulb_container.bulbs = standard_bulbs
+    assert lifx_commander.has_members(bulb_container)

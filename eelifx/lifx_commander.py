@@ -1,7 +1,9 @@
 import re
+import typing
 import logging
 from functools import wraps
 
+from aiolifx import aiolifx
 from colour import Color
 
 
@@ -16,12 +18,13 @@ def run_once(f):
 
 
 class LifxCommander():
-    def __init__(self, poll_interval, max_luminance, target_group='.*', colour_temp=3500):
+    def __init__(self, poll_interval: int=20, max_luminance: float=1.0, target_group: str='.*', colour_temp: int=3500):
         self._poll_interval = poll_interval
         self._max_luminance = max_luminance
         self._command_stack = {}
         self._supported_effects = ['none', 'strobe', 'flicker']
         self._target_group = re.compile(target_group, flags=re.I)
+        self._target_group_orig = target_group
         self._colour_temp = colour_temp
 
     def reset(self):
@@ -50,11 +53,21 @@ class LifxCommander():
         logging.info('setting power')
         self._command_stack['set_power'] = val
 
+    def has_members(self, bulbs: typing.Sequence[aiolifx.Light]) -> bool:
+        res = len(list(bulbs.filter_group(self._target_group))) > 0
+        logging.info(
+            'Group %s has %s',
+            self._target_group_orig,
+            ' at least one member' if res else ' not got any members'
+        )
+        return res
+
     def apply(self, bulbs):
         logging.debug('Candidate bulbs are %s' % bulbs)
         command_stack = self._command_stack
+
         target_bulbs = bulbs.filter_group(self._target_group)
-        logging.debug('Target bulbs are %s' % target_bulbs)
+
         m_colour = None
 
         for bulb in target_bulbs:
