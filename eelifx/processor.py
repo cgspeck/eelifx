@@ -12,6 +12,15 @@ from eelifx.ship import Ship
 from eelifx.lifx_commander import LifxCommander
 from eelifx.transport import get_ship_status
 
+def run_rules(lc_index: int,
+    lifx_commanders: typing.List[LifxCommander],
+    ship: Ship,
+    rules: typing.Dict
+):
+    for rule in rules:
+        print(rule)
+        if eval(rule['statement_compiled']):
+            exec(rule['effect_compiled'])
 
 async def process_game_state(
     loop: asyncio.AbstractEventLoop,
@@ -58,12 +67,12 @@ async def process_game_state(
 
             for lc_index, group in enumerate(groups):
                 lifx_commanders[lc_index].reset()
-                for rule in group['rules']:
-                    res = False
-                    exec(rule['statement_compiled'])
-                    logging.info(res)
-                    if res:
-                        exec(rule['effect_compiled'])
+                run_rules(
+                    lc_index,
+                    lifx_commanders,
+                    ship,
+                    group['rules']
+                )
 
                 lifx_commanders[lc_index].apply(bulbs)
 
