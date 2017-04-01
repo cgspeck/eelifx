@@ -1,5 +1,7 @@
 import logging
 
+import yaml
+
 DEFAULT_CONFIG = {
     'poll_interval': 20,
     'wait_for_members': True,
@@ -80,3 +82,7 @@ def setup_logging(level=logging.INFO):
     ch.setFormatter(formatter)
     # add ch to logger
     logger.addHandler(ch)
+
+
+def display_config():
+    print(yaml.dump(DEFAULT_CONFIG, default_flow_style=False))
