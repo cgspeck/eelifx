@@ -15,7 +15,7 @@ setup_logging(level=logging.DEBUG)
 config = DEFAULT_CONFIG
 
 UDP_BROADCAST_PORT = 56700
-poll_interval = config['poll_interval']
+poll_interval = 5
 
 MyBulbs = Bulbs()
 

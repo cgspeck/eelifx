@@ -3,7 +3,7 @@ import logging
 import yaml
 
 DEFAULT_CONFIG = {
-    'poll_interval': 20,
+    'poll_interval': 5,
     'wait_for_members': True,
     'groups': [
         {
@@ -54,15 +54,15 @@ lifx_commanders[lc_index].set_luminance(0.1)
                     'effect': "lifx_commanders[lc_index].set_colour('red')",
                 },
                 {
-                    'statement': 'ship.health < 0.2 and ship.health > 0.1',
+                    'statement': 'ship.hull < 0.2 and ship.hull > 0.1',
                     'effect': '''
 lifx_commanders[lc_index].set_power(True)
 lifx_commanders[lc_index].set_effect("flicker")
 ''',
                 },
                 {
-                    'statement': 'ship.health < 0.1',
-                    'effect': 'lifx_commanders[lc_index].set_power(False)',
+                    'statement': 'ship.hull < 0.1',
+                    'effect': '' #'lifx_commanders[lc_index].set_power(False)',
                 },
             ]
         },

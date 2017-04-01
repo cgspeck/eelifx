@@ -67,6 +67,8 @@ async def process_game_state(
 
             for lc_index, group in enumerate(groups):
                 lifx_commanders[lc_index].reset()
+                exec(group['base_state_compiled'])
+
                 run_rules(
                     lc_index,
                     lifx_commanders,
