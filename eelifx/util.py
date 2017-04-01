@@ -12,8 +12,9 @@ from eelifx.processor import process_game_state
 from eelifx.luacode import luacode
 
 
-def compile_items(_list, item_key):
-    for item in _list:
+def compile_items(uncomplied: typing.List[typing.Dict], item_key: str, mode: str='exec'):
+    res = deepcopy(uncomplied)
+    for item in res:
         if item_key not in item:
             logging.warning(
                 "Could not find %s in object %s.",
@@ -22,11 +23,11 @@ def compile_items(_list, item_key):
             )
             next
         try:
-            item['%s_compiled' % item_key] = compile(item[item_key], '<string>', 'exec')
+            item['%s_compiled' % item_key] = compile(item[item_key], '<string>', mode)
         except Exception as e:
             logging.exception("Unable to compile the following code to a python code object: %s" % pformat(item[item_key]))
             raise
-
+    return res
 
 async def wait_for_members(
     loop: asyncio.AbstractEventLoop,
@@ -52,16 +53,16 @@ async def wait_for_members(
     if ok:
         logging.info('At least one globe in each group is present, or wait_for_members is set to false.')
         logging.info('Compiling base states...')
-        compile_items(config['groups'], 'base_state')
+        config['groups'] = compile_items(config['groups'], 'base_state', mode='exec')
 
         groups = []
 
         for group in config['groups']:
             groups.append(deepcopy(group))
             logging.info('Compiling rule statements...')
-            compile_items(groups[-1]['rules'], 'statement')
+            groups[-1]['rules'] = compile_items(groups[-1]['rules'], 'statement', mode='eval')
             logging.info('Compiling effects statements...')
-            compile_items(groups[-1]['rules'], 'effect')
+            groups[-1]['rules'] = compile_items(groups[-1]['rules'], 'effect', mode='exec')
 
         if mode == 'group-test':
             asyncio.ensure_future(
