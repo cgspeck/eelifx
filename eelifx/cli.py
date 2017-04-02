@@ -50,9 +50,17 @@ def showconfig(loglevel=None):
     ),
     help='Path to optional config file with rules to load'
 )
-@click.command()
+@click.command(
+    short_help='Execute each rule in succession.',
+    help='A test cycle which exercises each rule for each group in succession, resetting lights to base prior to each test.'
+)
 def grouptest(config=None, loglevel=None):
-    print('group test')
+    _call_loop(
+        'grouptest',
+        endpoint=None,
+        config=config,
+        loglevel=loglevel
+    )
 
 
 @click.option(
@@ -85,7 +93,7 @@ def run(endpoint, config=None, loglevel=None):
     ),
     help='Path to optional config file with rules to load'
 )
-@click.command(help='Reset lights to base state')
+@click.command(help='Reset lights to base state.')
 def reset(config=None, loglevel=None):
     _call_loop(
         'reset',

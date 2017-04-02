@@ -74,7 +74,7 @@ async def wait_for_members(
 
         if mode == 'grouptest':
             asyncio.ensure_future(
-                group_test(loop, bulbs, lifx_commanders, poll_interval, groups, 0, 0)
+                group_test(loop, bulbs, lifx_commanders, 5, groups, 0, 0)
             )
         elif mode == 'run':
             asyncio.ensure_future(
@@ -82,7 +82,7 @@ async def wait_for_members(
             )
         else:
             asyncio.ensure_future(
-                reset_lights(loop, bulbs, lifx_commanders, poll_interval, groups)
+                reset_lights(loop, bulbs, lifx_commanders, 5, groups)
             )
 
 
@@ -130,8 +130,8 @@ async def group_test(
     if rule == len(groups[group]['rules']):
         rule = 0
         if group == len(groups):
-            group = 0
-            rule = 0
+            logging.info('End of test cycle')
+            loop.stop()
         else:
             group += 1
     else:
