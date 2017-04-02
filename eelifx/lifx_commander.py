@@ -93,7 +93,6 @@ class LifxCommander():
                     m_colour,
                     m_colour.hsl
                 )
-                logging.debug(m_colour.luminance)
                 if m_colour.luminance > self._max_luminance:
                     logging.debug(
                         'Clipping colour\'s luminance to %s',
@@ -101,7 +100,6 @@ class LifxCommander():
                     )
                     m_colour.luminance = self._max_luminance
 
-            logging.debug(m_colour.luminance)
             if 'set_luminance' in command_stack:
                 if m_colour:
                     m_colour.luminance = m_colour.luminance * command_stack['set_luminance']

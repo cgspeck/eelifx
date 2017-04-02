@@ -102,10 +102,10 @@ def display_config():
     print(dump_config())
 
 
-def load_config(f_handle):
-    config_str = f_handle.read()
-    f_handle.close()
-    config = yaml.load(config_str)
+def load_config(f_path: str):
+    with open(f_path, 'rt') as f_handle:
+        config = yaml.load(f_handle.read())
+
     return config
 
 
