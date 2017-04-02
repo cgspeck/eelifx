@@ -46,7 +46,7 @@ lifx_commanders[lc_index].set_luminance(0.1)
 ''',
                 },
                 {
-                    'statement': 'ship.energy > 0.05',
+                    'statement': 'ship.energy < 0.05',
                     'effect': 'lifx_commanders[lc_index].set_power(False)',
                 },
                 {
