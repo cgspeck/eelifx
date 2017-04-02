@@ -2,14 +2,12 @@ import sys
 import typing
 import asyncio
 import logging
-import async_timeout
 from copy import deepcopy
 from pprint import pformat
 
 from eelifx.bulbs import Bulbs
 from eelifx.lifx_commander import LifxCommander
 from eelifx.processor import process_game_state
-from eelifx.luacode import luacode
 
 
 def compile_items(uncomplied: typing.List[typing.Dict], item_key: str, mode: str='exec'):
@@ -28,6 +26,7 @@ def compile_items(uncomplied: typing.List[typing.Dict], item_key: str, mode: str
             logging.exception("Unable to compile the following code to a python code object: %s" % pformat(item[item_key]))
             raise
     return res
+
 
 async def wait_for_members(
     loop: asyncio.AbstractEventLoop,
@@ -64,14 +63,33 @@ async def wait_for_members(
             logging.info('Compiling effects statements...')
             groups[-1]['rules'] = compile_items(groups[-1]['rules'], 'effect', mode='exec')
 
-        if mode == 'group-test':
+        if mode == 'grouptest':
             asyncio.ensure_future(
                 group_test(loop, bulbs, lifx_commanders, poll_interval, groups, 0, 0)
             )
-        else:
+        elif mode == 'run':
             asyncio.ensure_future(
                 process_game_state(loop, bulbs, lifx_commanders, poll_interval, groups, config['endpoint'])
             )
+        else:
+            asyncio.ensure_future(
+                reset_lights(loop, bulbs, lifx_commanders, poll_interval, groups)
+            )
+
+
+async def reset_lights(
+    loop: asyncio.AbstractEventLoop,
+    bulbs: Bulbs,
+    lifx_commanders: typing.Sequence[LifxCommander],
+    poll_interval: int,
+    groups: typing.Dict
+):
+    for lc_index, group in enumerate(groups):
+        lifx_commanders[lc_index].reset()
+        exec(group['base_state_compiled'])
+        lifx_commanders[lc_index].apply(bulbs)
+    await asyncio.sleep(poll_interval)
+    sys.exit()
 
 
 async def group_test(

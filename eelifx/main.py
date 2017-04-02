@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-import json
 import asyncio
 import logging
 
@@ -17,7 +16,7 @@ setup_logging(logging.DEBUG)
 config = DEFAULT_CONFIG
 
 UDP_BROADCAST_PORT = 56700
-poll_interval = config['poll_interval']
+
 config['endpoint'] = 'http://localhost:8080/exec.lua'
 
 MyBulbs = Bulbs()

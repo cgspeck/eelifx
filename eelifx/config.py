@@ -1,6 +1,13 @@
+import sys
+import asyncio
 import logging
+from functools import partial
 
 import yaml
+import aiolifx
+
+from eelifx.util import wait_for_members, marshal_commanders
+from eelifx.bulbs import Bulbs
 
 DEFAULT_CONFIG = {
     'poll_interval': 5,
@@ -69,6 +76,8 @@ lifx_commanders[lc_index].set_effect("flicker")
     ],
 }
 
+UDP_BROADCAST_PORT = 56700
+
 
 def setup_logging(level=logging.INFO):
     logger = logging.getLogger()
@@ -84,5 +93,65 @@ def setup_logging(level=logging.INFO):
     logger.addHandler(ch)
 
 
+def dump_config():
+    return yaml.dump(DEFAULT_CONFIG, default_flow_style=False)
+
+
 def display_config():
-    print(yaml.dump(DEFAULT_CONFIG, default_flow_style=False))
+    print(dump_config())
+
+
+def load_config(f_handle):
+    config_str = f_handle.read()
+    f_handle.close()
+    config = yaml.load(config_str)
+    return config
+
+
+def setup_loop(
+    mode: str,
+    config=None,
+    endpoint=None,
+    loglevel=logging.DEBUG
+):
+    setup_logging(loglevel)
+
+    if config is None:
+        config = DEFAULT_CONFIG
+    else:
+        config = load_config(config)
+
+    if mode == 'run' and endpoint is None:
+        logging.error('Must supply an endpoint!')
+        sys.exit(1)
+
+    MyBulbs = Bulbs()
+
+    lifx_commanders = marshal_commanders(config)
+    #  Initialise the event loop
+    loop = asyncio.get_event_loop()
+    coro = loop.create_datagram_endpoint(
+        partial(aiolifx.LifxDiscovery, loop, MyBulbs),
+        local_addr=('0.0.0.0', UDP_BROADCAST_PORT)
+    )
+
+    try:
+        server = loop.create_task(coro)
+        asyncio.ensure_future(
+            wait_for_members(
+                loop,
+                MyBulbs,
+                lifx_commanders,
+                config['poll_interval'],
+                config,
+                mode=mode
+            )
+        )
+        logging.info("Use Ctrl-C to quit")
+        loop.run_forever()
+    except:
+        pass
+    finally:
+        server.cancel()
+        loop.remove_reader(sys.stdin)
+        loop.close()

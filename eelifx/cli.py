@@ -1,14 +1,43 @@
+import logging
+
 import click
 
-from eelifx.config import display_config
+from eelifx.config import display_config, setup_loop
 
+
+def _call_loop(
+    mode: str,
+    endpoint: str=None,
+    config=None,
+    loglevel=None,
+):
+    if loglevel is None:
+        loglevel = logging.INFO
+    else:
+        loglevel = getattr(logging, loglevel)
+
+    setup_loop(
+        mode,
+        config=config,
+        endpoint=endpoint,
+        loglevel=loglevel
+    )
+
+
+@click.option(
+    '--loglevel',
+    default=None,
+    help='E.g. "DEBUG" or "INFO"'
+)
 @click.group()
-def root():
+def root(loglevel=None):
     pass
 
+
 @click.command()
-def showdefaultconfig():
+def showconfig(loglevel=None):
     display_config()
+
 
 @click.option(
     '--config',
@@ -22,8 +51,9 @@ def showdefaultconfig():
     help='Path to optional config file with rules to load'
 )
 @click.command()
-def grouptest(config=None):
+def grouptest(config=None, loglevel=None):
     print('group test')
+
 
 @click.option(
     '--config',
@@ -40,13 +70,35 @@ def grouptest(config=None):
     'endpoint'
 )
 @click.command()
-def run(endpoint, config=None):
+def run(endpoint, config=None, loglevel=None):
     print('running')
 
 
-root.add_command(showdefaultconfig)
+@click.option(
+    '--config',
+    default=None,
+    type=click.Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True
+    ),
+    help='Path to optional config file with rules to load'
+)
+@click.command(help='Reset lights to base state')
+def reset(config=None, loglevel=None):
+    _call_loop(
+        'reset',
+        endpoint=None,
+        config=config,
+        loglevel=loglevel
+    )
+
+
+root.add_command(showconfig)
 root.add_command(grouptest)
 root.add_command(run)
+root.add_command(reset)
 
 if __name__ == '__main__':
     root()
