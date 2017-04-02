@@ -57,9 +57,12 @@ async def process_game_state(
             logging.warning('Unable to parse EmptyEpsilon response')
         else:
             if 'ERROR' in ship_data.keys():
-                logging.critical('Error returned by EmptyEpsilon:%s' % ship_data['ERROR'])
-                logging.critical('Executed LUA:\n---%s---' % luacode())
-                ship_data = None
+                if ship_data['ERROR'] == 'No game':
+                    logging.info('EmptyEpsilon reports no game is running')
+                else:
+                    logging.critical('Error returned by EmptyEpsilon:%s' % ship_data['ERROR'])
+                    logging.critical('Executed LUA:\n---%s---' % luacode())
+                    ship_data = None
 
     if ship_data:
         try:

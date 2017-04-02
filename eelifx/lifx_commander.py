@@ -164,9 +164,12 @@ class LifxCommander():
                 if alt_colour.luminance > self._max_luminance:
                     logging.debug(
                         'Clipping alt_colour\'s luminance to %s',
-                        alt_colour
+                        self._max_luminance
                     )
                     alt_colour.luminance = self._max_luminance
+
+                if 'set_luminance' in command_stack:
+                    alt_colour.luminance = alt_colour.luminance * command_stack['set_luminance']
 
                 period, cycles = self._calculate_peroid_and_cycles(data['hz'])
                 alt_colour_hsbk = self._calculate_hsbk(alt_colour)

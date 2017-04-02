@@ -32,14 +32,14 @@ lifx_commanders[lc_index].set_luminance(1.0)
 ''',
                 },
                 {
-                    'statement': 'ship.energy < 0.6 and ship.energy > 0.15',
+                    'statement': 'ship.energy < 0.4 and ship.energy >= 0.15',
                     'effect': '''
 lifx_commanders[lc_index].set_power(True)
 lifx_commanders[lc_index].set_luminance(0.6)
 ''',
                 },
                 {
-                    'statement': 'ship.energy > 0.15 and ship.energy > 0.05',
+                    'statement': 'ship.energy < 0.15 and ship.energy >= 0.05',
                     'effect': '''
 lifx_commanders[lc_index].set_power(True)
 lifx_commanders[lc_index].set_luminance(0.1)
@@ -55,17 +55,23 @@ lifx_commanders[lc_index].set_luminance(0.1)
                 },
                 {
                     'statement': "ship.alert_level == 'YELLOW ALERT'",
-                    'effect': "lifx_commanders[lc_index].set_colour('yellow')",
+                    'effect': '''
+lifx_commanders[lc_index].set_colour('yellow')
+lifx_commanders[lc_index].set_waveform({'waveform': 'SAW', 'hz': 0.5, 'alt_colour': 'white' })
+''',
                 },
                 {
                     'statement': "ship.alert_level == 'RED ALERT'",
-                    'effect': "lifx_commanders[lc_index].set_colour('red')",
+                    'effect': '''
+lifx_commanders[lc_index].set_colour('red')
+lifx_commanders[lc_index].set_waveform({'waveform': 'SAW', 'hz': 0.5, 'alt_colour': 'white' })
+''',
                 },
                 {
                     'statement': 'ship.hull < 0.2 and ship.hull > 0.1',
                     'effect': '''
 lifx_commanders[lc_index].set_power(True)
-lifx_commanders[lc_index].set_effect("flicker")
+lifx_commanders[lc_index].set_waveform({'waveform': 'SAW', 'hz':5, 'alt_colour':'black', 'duty_cycle':0.9})
 ''',
                 },
                 {
