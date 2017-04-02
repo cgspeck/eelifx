@@ -1,4 +1,5 @@
 import sys
+import signal
 import asyncio
 import logging
 from functools import partial
@@ -6,7 +7,7 @@ from functools import partial
 import yaml
 import aiolifx
 
-from eelifx.util import wait_for_members, marshal_commanders
+from eelifx.util import wait_for_members, marshal_commanders, shutdown_loop
 from eelifx.bulbs import Bulbs
 
 DEFAULT_CONFIG = {
@@ -136,7 +137,7 @@ def setup_loop(
     )
 
     try:
-        server = loop.create_task(coro)
+        loop.create_task(coro)
         asyncio.ensure_future(
             wait_for_members(
                 loop,
@@ -148,10 +149,15 @@ def setup_loop(
             )
         )
         logging.info("Use Ctrl-C to quit")
+        loop.add_signal_handler(signal.SIGHUP, partial(shutdown_loop, loop))
+        loop.add_signal_handler(signal.SIGTERM, partial(shutdown_loop, loop))
         loop.run_forever()
-    except:
+    except (SystemExit, KeyboardInterrupt):
         pass
+    except Exception:
+        logging.error()
     finally:
-        server.cancel()
-        loop.remove_reader(sys.stdin)
+        shutdown_loop(loop)
+        loop.stop()
+        loop.run_forever()
         loop.close()

@@ -10,6 +10,13 @@ from eelifx.lifx_commander import LifxCommander
 from eelifx.processor import process_game_state
 
 
+def shutdown_loop(loop):
+    logging.info('Cancelling tasks...')
+    for task in asyncio.Task.all_tasks():
+        task.cancel()
+    logging.info('Bye, exiting soon...')
+
+
 def compile_items(uncomplied: typing.List[typing.Dict], item_key: str, mode: str='exec'):
     res = deepcopy(uncomplied)
     for item in res:
@@ -37,6 +44,7 @@ async def wait_for_members(
     mode: str
 ):
     ok = True
+
     if 'wait_for_members' in config and config['wait_for_members']:
         logging.info('Checking to see if our groups have members yet')
         if not all([l.has_members(bulbs) for l in lifx_commanders]):
@@ -45,9 +53,10 @@ async def wait_for_members(
                 'At least one group has no members and wait_for_members is set to true, will retry in %s seconds.',
                 poll_interval
             )
-            # requeue check
-            await asyncio.sleep(poll_interval)
-            asyncio.ensure_future(wait_for_members(loop, bulbs, lifx_commanders, poll_interval, config, mode))
+    # requeue check
+    if not ok:
+        await asyncio.sleep(poll_interval)
+        asyncio.ensure_future(wait_for_members(loop, bulbs, lifx_commanders, poll_interval, config, mode))
 
     if ok:
         logging.info('At least one globe in each group is present, or wait_for_members is set to false.')
@@ -89,7 +98,7 @@ async def reset_lights(
         exec(group['base_state_compiled'])
         lifx_commanders[lc_index].apply(bulbs)
     await asyncio.sleep(poll_interval)
-    sys.exit()
+    loop.stop()
 
 
 async def group_test(
