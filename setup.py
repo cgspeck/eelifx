@@ -28,5 +28,9 @@ setup(
     install_requires=required,
     extras_require={
         'tests': required_test
-    }
+    },
+    entry_points='''
+        [console_scripts]
+        eelifx=eelifx.cli:root
+    '''
 )

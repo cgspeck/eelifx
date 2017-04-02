@@ -12,15 +12,19 @@ from eelifx.ship import Ship
 from eelifx.lifx_commander import LifxCommander
 from eelifx.transport import get_ship_status
 
-def run_rules(lc_index: int,
+
+def run_rules(
+    lc_index: int,
     lifx_commanders: typing.List[LifxCommander],
     ship: Ship,
     rules: typing.Dict
 ):
     for rule in rules:
-        print(rule)
+        logging.debug(rule)
+
         if eval(rule['statement_compiled']):
             exec(rule['effect_compiled'])
+
 
 async def process_game_state(
     loop: asyncio.AbstractEventLoop,

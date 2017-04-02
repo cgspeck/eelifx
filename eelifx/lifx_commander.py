@@ -50,7 +50,7 @@ class LifxCommander():
         if 'set_power' in self._command_stack and not self._command_stack['set_power']:
             return
 
-        logging.info('setting power')
+        logging.debug(f'setting power to {val}')
         self._command_stack['set_power'] = val
 
     def has_members(self, bulbs: typing.Sequence[aiolifx.Light]) -> bool:

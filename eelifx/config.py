@@ -70,7 +70,7 @@ lifx_commanders[lc_index].set_effect("flicker")
                 },
                 {
                     'statement': 'ship.hull < 0.1',
-                    'effect': '' #'lifx_commanders[lc_index].set_power(False)',
+                    'effect': 'lifx_commanders[lc_index].set_power(False)',
                 },
             ]
         },
@@ -127,6 +127,12 @@ def setup_loop(
         sys.exit(1)
 
     if endpoint:
+        if not endpoint.startswith('http'):
+            endpoint = f'http://{endpoint}'
+
+        if not endpoint.endswith('/exec.lua'):
+            endpoint = f'{endpoint}/exec.lua'
+
         config['endpoint'] = endpoint
 
     MyBulbs = Bulbs()
