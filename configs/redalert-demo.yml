@@ -1,0 +1,36 @@
+groups:
+- base_state: '
+
+    lifx_commanders[lc_index].set_power(True)
+
+    lifx_commanders[lc_index].set_colour("white")
+
+    lifx_commanders[lc_index].set_luminance(1.0)
+
+    '
+  colour_temp: 3500
+  match: ship.*
+  max_luminance: 0.29
+  rules:
+  - effect: "lifx_commanders[lc_index].set_colour('red')\n\
+lifx_commanders[lc_index].set_waveform({'waveform': 'SAW', 'hz':0.5, 'alt_colour':'black'})\n
+"
+    statement: ship.alert_level == 'SAW'
+  - effect: "lifx_commanders[lc_index].set_colour('red')\n\
+lifx_commanders[lc_index].set_waveform({'waveform': 'SINE', 'hz':0.5, 'alt_colour':'black'})\n
+"
+    statement: ship.alert_level == 'SINE'
+  - effect: "lifx_commanders[lc_index].set_colour('red')\n\
+lifx_commanders[lc_index].set_waveform({'waveform': 'HALF_SINE', 'hz':0.5, 'alt_colour':'black'})\n
+"
+    statement: ship.alert_level == 'HALF_SINE'
+  - effect: "lifx_commanders[lc_index].set_colour('red')\n\
+lifx_commanders[lc_index].set_waveform({'waveform': 'TRIANGLE', 'hz':0.5, 'alt_colour':'black'})\n
+"
+    statement: ship.alert_level == 'TRIANGLE'
+  - effect: "lifx_commanders[lc_index].set_colour('red')\n\
+lifx_commanders[lc_index].set_waveform({'waveform': 'PULSE', 'hz':0.5, 'alt_colour':'black'})\n
+"
+    statement: ship.alert_level == 'PULSE'
+poll_interval: 10
+wait_for_members: true
