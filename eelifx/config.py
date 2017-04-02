@@ -126,6 +126,9 @@ def setup_loop(
         logging.error('Must supply an endpoint!')
         sys.exit(1)
 
+    if endpoint:
+        config['endpoint'] = endpoint
+
     MyBulbs = Bulbs()
 
     lifx_commanders = marshal_commanders(config)

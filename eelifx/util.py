@@ -45,6 +45,10 @@ async def wait_for_members(
 ):
     ok = True
 
+    if mode in ['grouptest', 'reset']:
+        logging.info(f'Forcing wait_for_members on for {mode}')
+        config['wait_for_members'] = True
+
     if 'wait_for_members' in config and config['wait_for_members']:
         logging.info('Checking to see if our groups have members yet')
         if not all([l.has_members(bulbs) for l in lifx_commanders]):

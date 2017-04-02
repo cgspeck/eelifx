@@ -79,7 +79,12 @@ def grouptest(config=None, loglevel=None):
 )
 @click.command()
 def run(endpoint, config=None, loglevel=None):
-    print('running')
+    _call_loop(
+        'run',
+        endpoint=endpoint,
+        config=config,
+        loglevel=loglevel
+    )
 
 
 @click.option(
