@@ -18,6 +18,14 @@ def run_once(f):
 
 
 class LifxCommander():
+    SUPPORTED_WAVEFORMS = {
+        'SAW': {'code': 0, 'duty_cycle': 0.5},
+        'SINE': {'code': 1, 'duty_cycle': 0.5},
+        'HALF_SINE': {'code': 2, 'duty_cycle': 0.5},
+        'TRIANGLE': {'code': 3, 'duty_cycle': 0.5},
+        'PULSE': {'code': 4, 'duty_cycle': 0.5},
+    }
+
     def __init__(self, poll_interval: int=20, max_luminance: float=1.0, target_group: str='.*', colour_temp: int=3500):
         self._poll_interval = poll_interval
         self._max_luminance = max_luminance
@@ -33,6 +41,28 @@ class LifxCommander():
     def set_colour(self, val):
         logging.debug('setting colour %s', val)
         self._command_stack['set_colour'] = val
+
+    def set_waveform(self, val):
+        logging.debug('setting waveform %s', val)
+
+        if 'hz' not in val:
+            raise ValueError('Must supply a rate (hz)')
+        if 'waveform' not in val:
+            raise ValueError('Must supply a waveform (%s)', LifxCommander.SUPPORTED_WAVEFORMS)
+        if 'alt_colour' not in val:
+            logging.info('Waveform alt_colour not supplied, it will be black')
+            val['alt_colour'] = 'black'
+        if 'duty_cycle' not in val:
+            default_duty_cycle = LifxCommander.SUPPORTED_WAVEFORMS[val['waveform']]['duty_cycle']
+            logging.info(f'Waveform duty_cycle not supplied, it will be {default_duty_cycle}')
+            val['duty_cycle'] = default_duty_cycle
+
+        if val['waveform'] not in LifxCommander.SUPPORTED_WAVEFORMS:
+            raise ValueError('Call to set_waveform with unsupported waveform string')
+
+        val['wave_code'] = LifxCommander.SUPPORTED_WAVEFORMS[val['waveform']]['code']
+
+        self._command_stack['set_waveform'] = val
 
     def set_effect(self, val):
         assert val in self._supported_effects
@@ -61,6 +91,19 @@ class LifxCommander():
             'at least one member' if res else 'not got any members'
         )
         return res
+
+    def _calculate_peroid_and_cycles(self, hz):
+        peroid = 1000 / hz
+        cycles = hz * self._poll_interval
+        return peroid, cycles
+
+    def _calculate_hsbk(self, _colour: Color):
+        return [
+            int(round((float(_colour.hue)*65535.0)/1.0)),
+            int(round((float(_colour.saturation)*65535.0)/1.0)),
+            int(round((float(_colour.luminance)*65535.0)/1.0)),
+            self._colour_temp
+        ]
 
     def apply(self, bulbs):
         if len(self._command_stack) == 0:
@@ -111,11 +154,37 @@ class LifxCommander():
                 m_colour,
                 m_colour.hsl
             )
-            #  color is [Hue, Saturation, Brightness, Kelvin], duration in ms
-            #  def set_color(self, value, callb=None, duration=0, rapid=False):
-            bulb.set_color([
-                int(round((float(m_colour.hue)*65535.0)/1.0)),
-                int(round((float(m_colour.saturation)*65535.0)/1.0)),
-                int(round((float(m_colour.luminance)*65535.0)/1.0)),
-                self._colour_temp
-            ])
+
+            set_colour_callback = None
+
+            if 'set_waveform' in command_stack:
+                data = command_stack['set_waveform']
+
+                alt_colour = Color(data['alt_colour'])
+                if alt_colour.luminance > self._max_luminance:
+                    logging.debug(
+                        'Clipping alt_colour\'s luminance to %s',
+                        alt_colour
+                    )
+                    alt_colour.luminance = self._max_luminance
+
+                period, cycles = self._calculate_peroid_and_cycles(data['hz'])
+                alt_colour_hsbk = self._calculate_hsbk(alt_colour)
+                duty_cycle = data['duty_cycle']
+                waveform = data['wave_code']
+
+                def set_waveform_cb(light, response):
+                    light.set_waveform(
+                        {
+                            'transient': False,
+                            'color': alt_colour_hsbk,
+                            'period': period,
+                            'cycles': cycles,
+                            'duty_cycle': duty_cycle,
+                            'waveform': waveform
+                        }
+                    )
+
+                set_colour_callback = set_waveform_cb
+
+            bulb.set_color(self._calculate_hsbk(m_colour), callb=set_colour_callback)

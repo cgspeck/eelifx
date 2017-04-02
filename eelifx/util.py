@@ -131,15 +131,15 @@ async def group_test(
     lifx_commanders[lc_index].apply(bulbs)
     lifx_commanders[lc_index].reset()
     await asyncio.sleep(poll_interval)
+    rule += 1
+
     if rule == len(groups[group]['rules']):
         rule = 0
+        group += 1
+
         if group == len(groups):
             logging.info('End of test cycle')
             loop.stop()
-        else:
-            group += 1
-    else:
-        rule += 1
 
     asyncio.ensure_future(group_test(loop, bulbs, lifx_commanders, poll_interval, groups, group, rule))
 

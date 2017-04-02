@@ -60,3 +60,22 @@ def test_has_members(bulb_container, standard_bulbs):
     assert not lifx_commander.has_members(bulb_container)
     bulb_container.bulbs = standard_bulbs
     assert lifx_commander.has_members(bulb_container)
+
+
+testdata_calculate_peroids_and_cycles = [
+    (5, 25, 40, 125),
+    (20, 25, 40, 500),
+    (20, 1, 1000, 20),
+    (20, 0.5, 2000, 10),
+]
+
+
+@pytest.mark.parametrize('poll_interval,requested_hz,expected_period,expected_cycles,', testdata_calculate_peroids_and_cycles)
+def test_calculate_period_and_cycles(poll_interval, requested_hz, expected_period, expected_cycles):
+    lifx_commander = LifxCommander(
+        poll_interval=poll_interval,
+        target_group='ship.*'
+    )
+
+    assert lifx_commander._calculate_peroid_and_cycles(requested_hz)[0] == expected_period
+    assert lifx_commander._calculate_peroid_and_cycles(requested_hz)[1] == expected_cycles
