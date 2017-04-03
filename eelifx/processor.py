@@ -7,7 +7,7 @@ import aiohttp
 from aiohttp.client_exceptions import ClientConnectorError
 
 from eelifx.bulbs import Bulbs
-from eelifx.luacode import luacode
+from eelifx.luacode import luacode, statement_for
 from eelifx.ship import Ship
 from eelifx.lifx_commander import LifxCommander
 from eelifx.transport import get_ship_status
@@ -88,3 +88,24 @@ async def process_game_state(
     session.close()
     await asyncio.sleep(poll_interval)
     asyncio.ensure_future(process_game_state(loop, bulbs, lifx_commanders, poll_interval, groups, endpoint, ship))
+
+
+async def queryship(endpoint, hull=None, energy=None):
+    session = aiohttp.ClientSession()
+    insert = ''
+
+    if hull:
+        insert = f"{insert}{statement_for('hull', hull)}"
+
+    if energy:
+        insert = f"{insert}{statement_for('energy', energy)}"
+
+    html = None
+    try:
+        html = await get_ship_status(session, endpoint, insert=insert)
+    except ClientConnectorError as e:
+        logging.warn("Unable to connect to EmptyEpsilon, is its http server running?")
+        logging.warn(e)
+
+    logging.info(f'Response\n{html}')
+    session.close()

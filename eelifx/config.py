@@ -7,8 +7,10 @@ from functools import partial
 import yaml
 import aiolifx
 
-from eelifx.util import wait_for_members, marshal_commanders, shutdown_loop
+from eelifx.util import wait_for_members, marshal_commanders, shutdown_loop, normalise_endpoint
 from eelifx.bulbs import Bulbs
+
+from .processor import queryship
 
 DEFAULT_CONFIG = {
     'poll_interval': 5,
@@ -133,13 +135,7 @@ def setup_loop(
         sys.exit(1)
 
     if endpoint:
-        if not endpoint.startswith('http'):
-            endpoint = f'http://{endpoint}'
-
-        if not endpoint.endswith('/exec.lua'):
-            endpoint = f'{endpoint}/exec.lua'
-
-        config['endpoint'] = endpoint
+        config['endpoint'] = normalise_endpoint(endpoint)
 
     MyBulbs = Bulbs()
 
@@ -176,3 +172,11 @@ def setup_loop(
         loop.stop()
         loop.run_forever()
         loop.close()
+
+
+def setup_queryship(endpoint: str, hull: int=None, energy: int=None, loglevel=logging.DEBUG):
+    setup_logging()
+    loop = asyncio.get_event_loop()
+    loop.add_signal_handler(signal.SIGHUP, partial(shutdown_loop, loop))
+    loop.add_signal_handler(signal.SIGTERM, partial(shutdown_loop, loop))
+    loop.run_until_complete(queryship(normalise_endpoint(endpoint), hull=hull, energy=energy))

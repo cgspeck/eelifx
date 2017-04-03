@@ -161,3 +161,16 @@ def marshal_commanders(config):
         sys.exit(1)
 
     return lifx_commanders
+
+
+def normalise_endpoint(endpoint):
+    if not endpoint.startswith('http'):
+        endpoint = f'http://{endpoint}'
+
+    if not endpoint.endswith(':8080/exec.lua'):
+        endpoint = f'{endpoint}:8080/exec.lua'
+
+    if not endpoint.endswith('/exec.lua'):
+        endpoint = f'{endpoint}/exec.lua'
+
+    return endpoint
