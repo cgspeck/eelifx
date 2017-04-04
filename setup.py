@@ -33,6 +33,6 @@ setup(
         [console_scripts]
         eelifx=eelifx.cli:root
     ''',
-    keywords=['EmptyEpsilon', 'Lifx']
+    keywords=['EmptyEpsilon', 'Lifx'],
     download_url='https://github.com/cgspeck/eelifx/archive/0.8.0.tar.gz'
 )
