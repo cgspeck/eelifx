@@ -27,10 +27,11 @@ def _call_loop(
 @click.option(
     '--loglevel',
     default=None,
-    help='E.g. "DEBUG" or "INFO"'
+    help='E.g. "DEBUG" or "INFO"',
 )
 @click.group()
 def root(loglevel=None):
+    ''' EELifx Copyright (C) 2017 Chris Speck'''
     pass
 
 

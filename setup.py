@@ -20,10 +20,10 @@ setup(
     description='''
     EmptyEpsilon to Lifx Bridge
     ''',
-    version='0.0.1',
+    version='0.8.0',
     author='Chris Speck',
     author_email='cgspeck@gmail.com',
-    url='https://www.chrisspeck.com/',
+    url='https://github.com/cgspeck/eelifx',
     packages=['eelifx'],
     install_requires=required,
     extras_require={
@@ -32,5 +32,7 @@ setup(
     entry_points='''
         [console_scripts]
         eelifx=eelifx.cli:root
-    '''
+    ''',
+    keywords=['EmptyEpsilon', 'Lifx']
+    download_url='https://github.com/cgspeck/eelifx/archive/0.8.0.tar.gz'
 )

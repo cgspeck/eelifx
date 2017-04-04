@@ -1,6 +1,6 @@
 # EELifx
 
-![Master Build Status](https://travis-ci.org/cgspeck/eelifx.svg?branch=master)
+![Master Build Status](https://travis-ci.org/cgspeck/eelifx.svg?branch=master) |  [Source](https://github.com/cgspeck/eelifx)
 
 Automatically set your [Lifx globes](https://www.lifx.com/) according to player ship game state in [EmptyEpsilon](http://daid.github.io/EmptyEpsilon/). It uses the [Lifx LAN Protocol](https://lan.developer.lifx.com/) and may control any lights that are on the same network as EELifx.
 
@@ -20,8 +20,10 @@ With Python 3.6+, run `pip install eelifx` ([Virtualenv](http://python-guide-pt-
 
 The full range of commands are avaliable by running help:
 ```
-$ eelifx --help
+$ eelifx
 Usage: eelifx [OPTIONS] COMMAND [ARGS]...
+
+  EELifx Copyright (C) 2017 Chris Speck
 
 Options:
   --loglevel TEXT  E.g. "DEBUG" or "INFO"
@@ -84,3 +86,5 @@ The ship object exposes the following properties:
 * ship.hull - float in range 0 - 1
 * ship.energy - float in range 0 - 1
 * ship.alert_level - string, 'normal', 'YELLOW ALERT' or 'RED ALERT'
+
+Licensed under the GPLv3
