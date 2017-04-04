@@ -63,7 +63,7 @@ groups:
   max_luminance: 0.29
   rules:
   - effect: lifx_commanders[lc_index].set_power(False)
-    statement: ship.alert_level == 'normal'
+    statement: ship.alert_level == 'Normal'
   - effect: '
 
       lifx_commanders[lc_index].set_power(True)

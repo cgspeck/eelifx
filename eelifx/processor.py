@@ -62,7 +62,8 @@ async def process_game_state(
                 else:
                     logging.critical('Error returned by EmptyEpsilon:%s' % ship_data['ERROR'])
                     logging.critical('Executed LUA:\n---%s---' % luacode())
-                    ship_data = None
+
+                ship_data = None
 
     if ship_data:
         try:
