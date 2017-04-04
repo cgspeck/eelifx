@@ -43,12 +43,7 @@ def showconfig(loglevel=None):
 @click.option(
     '--config',
     default=None,
-    type=click.Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True
-    ),
+    type=click.File('rt'),
     help='Path to optional config file with rules to load'
 )
 @click.command(
@@ -67,12 +62,7 @@ def grouptest(config=None, loglevel=None):
 @click.option(
     '--config',
     default=None,
-    type=click.Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True
-    ),
+    type=click.File('rt'),
     help='Path to optional config file with rules to load'
 )
 @click.argument(
@@ -101,12 +91,7 @@ def queryship(endpoint, loglevel=None, hull=None, energy=None):
 @click.option(
     '--config',
     default=None,
-    type=click.Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=False,
-        readable=True
-    ),
+    type=click.File('rt'),
     help='Path to optional config file with rules to load'
 )
 @click.command(help='Reset lights to base state.')

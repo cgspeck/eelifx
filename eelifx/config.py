@@ -1,10 +1,12 @@
 import sys
 import signal
+import typing
 import asyncio
 import logging
 from functools import partial
 
 import yaml
+from yaml.scanner import ScannerError
 import aiolifx
 
 from eelifx.util import wait_for_members, marshal_commanders, shutdown_loop, normalise_endpoint
@@ -110,9 +112,15 @@ def display_config():
     print(dump_config())
 
 
-def load_config(f_path: str):
-    with open(f_path, 'rt') as f_handle:
+def load_config(f_handle: typing.io):
+    config = None
+
+    try:
         config = yaml.load(f_handle.read())
+    except ScannerError as e:
+        logging.error(f'Unable to load config: {e}')
+    finally:
+        f_handle.close()
 
     return config
 
@@ -129,6 +137,9 @@ def setup_loop(
         config = DEFAULT_CONFIG
     else:
         config = load_config(config)
+
+    if config is None:
+        sys.exit(1)
 
     if mode == 'run' and endpoint is None:
         logging.error('Must supply an endpoint!')
