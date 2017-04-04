@@ -17,9 +17,7 @@ required_test = filter_requirements('requirements-test.txt')
 
 setup(
     name='eelifx',
-    description='''
-    EmptyEpsilon to Lifx Bridge
-    ''',
+    description='Use game state in EmptyEpsilon to control your Lifx globes.',
     version='0.8.0',
     author='Chris Speck',
     author_email='cgspeck@gmail.com',
