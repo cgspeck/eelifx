@@ -25,7 +25,8 @@ if rc != 0:
     print('Unable to tag repo!')
     sys.exit(1)
 
-rc = os.system(f'git push --tags')
+rc = os.system(f'git push')
+rc += os.system(f'git push --tags')
 if rc != 0:
     print('Unable to push tags!')
     sys.exit(1)
