@@ -1,2 +1,4 @@
+ipdb==0.10.2
 ipykernel==4.5.2
+pyandoc==0.2.0
 -r requirements-test.txt

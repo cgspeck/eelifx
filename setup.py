@@ -1,3 +1,4 @@
+import os
 from setuptools import setup
 
 
@@ -11,14 +12,29 @@ def filter_requirements(fn):
     return filtered_requirements
 
 
+def load_version():
+    with open('VERSION') as fh:
+        res = fh.read()
+    return res
+
+
+version = load_version()
+
 required = filter_requirements('requirements.txt')
 
 required_test = filter_requirements('requirements-test.txt')
 
+long_description = 'Install, then run ``eelifx --help``. See `the repo<https://github.com/cgspeck/eelifx>`_ for more information.'
+
+if os.path.exists('README.rst'):
+    with open('README.rst') as fh:
+        long_description = fh.read()
+
 setup(
     name='eelifx',
     description='Use game state in EmptyEpsilon to control your Lifx globes.',
-    version='0.8.0',
+    long_description=long_description,
+    version=version,
     author='Chris Speck',
     author_email='cgspeck@gmail.com',
     url='https://github.com/cgspeck/eelifx',
@@ -32,5 +48,5 @@ setup(
         eelifx=eelifx.cli:root
     ''',
     keywords=['EmptyEpsilon', 'Lifx'],
-    download_url='https://github.com/cgspeck/eelifx/archive/0.8.0.tar.gz'
+    download_url=f'https://github.com/cgspeck/eelifx/archive/{version}.tar.gz'
 )
