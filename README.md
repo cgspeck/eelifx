@@ -85,6 +85,6 @@ The ship object exposes the following properties:
 
 * ship.hull - float in range 0 - 1
 * ship.energy - float in range 0 - 1
-* ship.alert_level - string, 'normal', 'YELLOW ALERT' or 'RED ALERT'
+* ship.alert_level - string, 'Normal', 'YELLOW ALERT' or 'RED ALERT'
 
 Licensed under the GPLv3
