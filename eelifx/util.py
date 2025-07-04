@@ -12,7 +12,8 @@ from eelifx.processor import process_game_state
 
 def shutdown_loop(loop):
     logging.info('Cancelling tasks...')
-    for task in asyncio.Task.all_tasks():
+    
+    for task in asyncio.tasks.all_tasks():
         task.cancel()
     logging.info('Bye, exiting soon...')
 
@@ -26,7 +27,7 @@ def compile_items(uncomplied: typing.List[typing.Dict], item_key: str, mode: str
                 item_key,
                 item
             )
-            next
+            continue
         try:
             item['%s_compiled' % item_key] = compile(item[item_key], '<string>', mode)
         except Exception as e:

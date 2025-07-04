@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import click
 
@@ -7,7 +8,7 @@ from eelifx.config import display_config, setup_loop, setup_queryship
 
 def _call_loop(
     mode: str,
-    endpoint: str=None,
+    endpoint: Optional[str] = None,
     config=None,
     loglevel=None,
 ):
@@ -84,7 +85,7 @@ def run(endpoint, config=None, loglevel=None):
 @click.option('hull', '-h', type=click.IntRange(0, 2000), help='Set hull level', metavar='<int>')
 @click.option('energy', '-e', type=click.IntRange(0, 5000), help='Set energy level', metavar='<int>')
 @click.command(short_help='Query EE and set parameters if given.')
-def queryship(endpoint, loglevel=None, hull=None, energy=None):
+def queryship(endpoint, loglevel: Optional[str] = None, hull: Optional[int] = None, energy: Optional[int] = None):
     setup_queryship(endpoint, hull=hull, energy=energy, loglevel=loglevel)
 
 

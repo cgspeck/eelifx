@@ -2,7 +2,7 @@ import json
 import typing
 import asyncio
 import logging
-
+from typing import Optional
 import aiohttp
 from aiohttp.client_exceptions import ClientConnectorError
 
@@ -15,7 +15,7 @@ from eelifx.transport import get_ship_status
 
 def run_rules(
     lc_index: int,
-    lifx_commanders: typing.List[LifxCommander],
+    lifx_commanders: typing.Sequence[LifxCommander],
     ship: Ship,
     rules: typing.Dict
 ):
@@ -33,7 +33,7 @@ async def process_game_state(
     poll_interval: int,
     groups: typing.Dict,
     endpoint: str,
-    ship: Ship=None,
+    ship: Optional[Ship] = None,
 ):
     if ship is None:
         logging.info('Creating Ship object')
@@ -86,12 +86,12 @@ async def process_game_state(
 
                 lifx_commanders[lc_index].apply(bulbs)
 
-    session.close()
+    await session.close()
     await asyncio.sleep(poll_interval)
     asyncio.ensure_future(process_game_state(loop, bulbs, lifx_commanders, poll_interval, groups, endpoint, ship))
 
 
-async def queryship(endpoint, hull=None, energy=None):
+async def queryship(endpoint, hull: Optional[int] = None, energy: Optional[int] =None):
     session = aiohttp.ClientSession()
     insert = ''
 
@@ -109,4 +109,4 @@ async def queryship(endpoint, hull=None, energy=None):
         logging.warn(e)
 
     logging.info(f'Response\n{html}')
-    session.close()
+    await session.close()

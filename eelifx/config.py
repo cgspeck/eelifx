@@ -1,18 +1,19 @@
-import sys
-import signal
-import typing
 import asyncio
 import logging
+import signal
+import sys
+import typing
 from functools import partial
+from typing import Optional
 
+import aiolifx
 import yaml
 from yaml.scanner import ScannerError
-import aiolifx
 
-from eelifx.util import wait_for_members, marshal_commanders, shutdown_loop, normalise_endpoint
 from eelifx.bulbs import Bulbs
-
-from .processor import queryship
+from eelifx.processor import queryship
+from eelifx.util import (marshal_commanders, normalise_endpoint, shutdown_loop,
+                         wait_for_members)
 
 DEFAULT_CONFIG = {
     'poll_interval': 5,
@@ -112,11 +113,11 @@ def display_config():
     print(dump_config())
 
 
-def load_config(f_handle: typing.io):
+def load_config(f_handle: typing.IO):
     config = None
 
     try:
-        config = yaml.load(f_handle.read())
+        config = yaml.load(f_handle.read(), Loader=yaml.SafeLoader)
     except ScannerError as e:
         logging.error(f'Unable to load config: {e}')
     finally:
@@ -177,7 +178,7 @@ def setup_loop(
     except (SystemExit, KeyboardInterrupt):
         pass
     except Exception:
-        logging.error()
+        logging.exception("Exception setting up loop")
     finally:
         shutdown_loop(loop)
         loop.stop()
@@ -185,7 +186,7 @@ def setup_loop(
         loop.close()
 
 
-def setup_queryship(endpoint: str, hull: int=None, energy: int=None, loglevel=logging.DEBUG):
+def setup_queryship(endpoint: str, hull: Optional[int] = None, energy: Optional[int] = None, loglevel=logging.DEBUG):
     setup_logging()
     loop = asyncio.get_event_loop()
     loop.add_signal_handler(signal.SIGHUP, partial(shutdown_loop, loop))

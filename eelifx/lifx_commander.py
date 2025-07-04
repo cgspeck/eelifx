@@ -1,7 +1,8 @@
+import logging
 import re
 import typing
-import logging
 from functools import wraps
+from typing import Dict
 
 from aiolifx import aiolifx
 from colour import Color
@@ -29,7 +30,7 @@ class LifxCommander():
     def __init__(self, poll_interval: int=20, max_luminance: float=1.0, target_group: str='.*', colour_temp: int=3500):
         self._poll_interval = poll_interval
         self._max_luminance = max_luminance
-        self._command_stack = {}
+        self._command_stack: Dict[str, Dict[str, str | int | float]] = {}
         self._supported_effects = ['none', 'strobe', 'flicker']
         self._target_group = re.compile(target_group, flags=re.I)
         self._target_group_orig = target_group

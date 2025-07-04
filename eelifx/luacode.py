@@ -1,4 +1,6 @@
-def luacode(insert: str=None) -> str:
+from typing import Optional
+
+def luacode(insert: Optional[str] = None) -> str:
 
     if insert is None or len(insert) == 0:
         insert = ''
