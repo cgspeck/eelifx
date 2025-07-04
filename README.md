@@ -6,7 +6,7 @@ Automatically set your [Lifx globes](https://www.lifx.com/) according to player 
 
 ## Installation
 
-With Python 3.6+, run `pip install eelifx` ([Virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/) recommended).
+With Python 3.13+, run `pip install eelifx` ([Virtualenv](http://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/) recommended).
 
 ## Quick Start
 

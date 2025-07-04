@@ -27,7 +27,7 @@ class Bulbs():
                 break
             idx += 1
 
-    def filter_group(self, compiled_regex: typing.re) -> typing.Generator[aiolifx.Light, None, None]:
+    def filter_group(self, compiled_regex: typing.Pattern) -> typing.Generator[aiolifx.Light, None, None]:
 
         for bulb in self.bulbs:
             if compiled_regex.match(bulb.get_group()):
